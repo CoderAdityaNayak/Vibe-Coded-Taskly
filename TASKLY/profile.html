@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USER - Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --accent-blue: #007bff; /* A vibrant blue */
+            --text-color: #e0e0e0;
+            --light-text: #a0a0a0;
+            --card-bg: rgba(10, 10, 10, 0.7); /* Slightly lighter black for cards */
+            --border-radius: 12px;
+            --shadow-color: rgba(0, 123, 255, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: auto; /* Allow scrolling for content on smaller screens */
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 30px var(--shadow-color);
+            padding: 30px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-pic-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-blue);
+            overflow: hidden;
+            box-shadow: 0 0 15px var(--shadow-color);
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .profile-details {
+            font-size: 0.95rem;
+            color: var(--light-text);
+            margin-bottom: 20px;
+        }
+
+        .current-date {
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option-button {
+            background-color: rgba(0, 123, 255, 0.1); /* Lighter blue background */
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .option-button:hover {
+            background-color: var(--accent-blue);
+            color: var(--bg-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .option-button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .profile-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            .profile-name {
+                font-size: 1.8rem;
+            }
+            .profile-pic-wrapper {
+                width: 100px;
+                height: 100px;
+            }
+            .option-button {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+.nav-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 360px;
+  height: 70px;
+  background: #000;
+  border: 3px solid #000;
+  border-radius: 25px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  z-index: 999;
+}
+
+.nav-icon {
+  width: 28px;
+  height: 28px;
+  filter: invert(1);
+  opacity: 0.6;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-icon:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.nav-icon.active {
+  opacity: 1;
+  border: 2px solid #00ff88;
+  padding: 6px;
+  border-radius: 50%;
+  background: #000;
+  box-shadow: 0 0 10px #00ff88;
+}
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-pic-wrapper">
+                </div>
+        <div class="profile-name">Hello USER</div>
+        <div class="profile-details">male,19</div>
+        <div class="current-date" id="current-date"></div>
+
+        <div class="section-title">Connect</div>
+        <div class="options-grid">
+            <a href="#" target="_blank" class="option-button">
+                <span class="icon">▶️</span> View YouTube Profile
+            </a>
+            <a href="#" target="_blank" class="option-button">
+                <span class="icon">📸</span> View Instagram Profile
+            </a>
+        </div>
+
+        <div class="section-title">Actions</div>
+        <div class="options-grid">
+            <a href="bill.html" class="option-button">
+                <span class="icon">💰</span> Make Bill
+            </a>
+            
+           <a href="#" class="option-button" onclick="shareSchedule()">
+                <span class="icon">🔗</span> View your Website
+            </a>
+        </div>
+    </div>
+  <div class="nav-bar">
+  <a href="home.html">
+    <img src="https://cdn-icons-png.flaticon.com/128/6997/6997164.png" alt="Home"  class="nav-icon" />
+  </a>
+  <a href="calcu.html">
+    <img src="https://cdn-icons-png.flaticon.com/128/10550/10550106.png" alt="Cal" class="nav-icon" />
+  </a>
+  <a href="profile.html">
+    <img src="https://cdn-icons-png.flaticon.com/128/1077/1077114.png" alt="prof" class="nav-icon active" />
+  </a>
+</div>
+    <script>
+        // Set today's date
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateElement = document.getElementById('current-date');
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = today.toLocaleDateString('en-IN', options);
+        });
+
+    </script>
+</body>
+</html>

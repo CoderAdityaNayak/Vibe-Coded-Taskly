@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Client Bill Maker</title>
+    <style>
+        :root {
+            --black: #000;
+            --red: #dc3545;
+            --blue: #0d6efd;
+            --green: #198754;
+            --bg: #121212; /* Darker background */
+            --text-primary: #f8f9fa; /* Lighter text */
+            --text-secondary: #adb5bd;
+            --border-color: #343a40;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            --transition: all 0.2s ease-in-out;
+            --input-bg: #212529;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            padding: 15px;
+            line-height: 1.6;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: var(--green); /* Green for primary heading */
+        }
+
+        .tab-header {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-button, .add-tab-button {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .add-tab-button {
+            color: var(--blue);
+            font-weight: bold;
+        }
+
+        .tab-button.active {
+            color: var(--green);
+            border-bottom: 2px solid var(--green);
+        }
+
+        .tab-button:hover, .add-tab-button:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background-color: var(--input-bg);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .client-name-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .service-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .service-option {
+            background-color: #282c34;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .service-option.selected {
+            background-color: var(--green);
+            color: var(--text-primary);
+            border-color: var(--green);
+        }
+
+        .service-list {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #282c34;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dotted var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-item-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .service-item-details input[type="number"],
+        .service-item-details input[type="date"] {
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            width: 80px;
+        }
+
+        .remove-service, .date-adjust-button {
+            background: none;
+            border: none;
+            color: var(--red);
+            cursor: pointer;
+            margin-left: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .date-adjust-button {
+            color: var(--blue);
+            font-weight: normal;
+            font-size: 0.8rem;
+            border: 1px solid var(--blue);
+            border-radius: 4px;
+            padding: 4px 6px;
+        }
+
+        .remove-service:hover, .date-adjust-button:hover {
+            opacity: 0.8;
+        }
+
+        .subtotal, .final-subtotal {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .final-subtotal {
+            color: var(--green);
+            font-size: 1.1rem;
+        }
+
+        .discount-section {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .discount-section label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .discount-section input[type="number"] {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            width: 70px;
+            font-size: 0.9rem;
+        }
+
+        .global-fees {
+            background-color: var(--input-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .global-fees h3 {
+            color: var(--blue);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .global-fees label {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .global-fees input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .global-fees .date-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .global-fees .date-input-group button {
+            background-color: transparent;
+            color: var(--blue);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 5px;
+            border: 1px solid var(--blue);
+            border-radius: 4px;
+        }
+
+        .global-fees .date-input-group input[type="date"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        #grandTotal {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--green);
+        }
+
+        #button {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: var(--blue);
+            color: var(--text-primary);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        button:hover {
+            background-color: #1877f2;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        #loadingModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #loadingModal.active {
+            display: flex;
+        }
+
+        .spinner {
+            border: 5px solid #444;
+            border-top: 5px solid var(--blue);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-bottom: 15px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .tab-header {
+                flex-wrap: nowrap;
+            }
+
+            .tab-button, .add-tab-button {
+                padding: 8px 10px;
+                margin-right: 5px;
+                font-size: 0.8rem;
+            }
+
+            .service-options {
+                gap: 5px;
+            }
+
+            .service-option {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+
+            .service-item {
+                font-size: 0.85rem;
+            }
+
+            .service-item-details input[type="number"],
+            .service-item-details input[type="date"] {
+                width: 60px;
+                font-size: 0.7rem;
+                padding: 5px;
+            }
+
+            .discount-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Multi-Client Bill Maker</h2>
+    <div class="tab-header" id="tabHeader">
+        <button class="add-tab-button" onclick="addNewClient()">+ Add Client</button>
+    </div>
+    <div id="tabContents"></div>
+
+    <div class="global-fees">
+        <h3>Other Charges</h3>
+        <label for="globalAccommodation">Accommodation Fee</label>
+        <input type="number" id="globalAccommodation" value="0" oninput="updateGrandTotal()">
+
+        <label for="globalConvenience">Convenience Fee</label>
+        <input type="number" id="globalConvenience" value="0" oninput="updateGrandTotal()">
+
+        <label for="globalExtra">Extra Fees</label>
+        <input type="number" id="globalExtra" value="0" oninput="updateGrandTotal()">
+
+        <label for="billDate">Bill Date</label>
+        <div class="date-input-group">
+            <button onclick="changeDate(-1)">➖</button>
+            <input type="date" id="billDate" onchange="updateAllServiceDates(this.value)"/>
+            <button onclick="changeDate(1)">➕</button>
+        </div>
+    </div>
+
+    <div id="grandTotal"></div>
+    <div id="button">
+        <button onclick="startCodeFlow()">Create Bill</button>
+    </div>
+    <div id="loadingModal">
+        <div class="spinner"></div>
+        <p>Generating bill, please wait...</p>
+    </div>
+
+    <script>
+        let clientCounter = 0;
+        const clients = {};
+        let activeTab = null;
+
+        function addNewClient() {
+            clientCounter++;
+            const clientId = clientCounter;
+
+            const tabBtn = document.createElement('button');
+            tabBtn.textContent = `Client ${clientId}`;
+            tabBtn.className = 'tab-button';
+            tabBtn.dataset.tab = clientId;
+            tabBtn.onclick = () => openTab(clientId);
+
+            const tabHeader = document.getElementById('tabHeader');
+            tabHeader.insertBefore(tabBtn, tabHeader.lastElementChild);
+
+            const tabContent = document.createElement('div');
+            tabContent.className = 'tab-content';
+            tabContent.id = `tab-${clientId}`;
+
+            tabContent.innerHTML = `
+                <input class="client-name-input" id="clientName-${clientId}" placeholder="Enter client name" oninput="updateTabName(${clientId})">
+
+                <div class="service-options">
+                    <div class="service-option" onclick="addService('${clientId}', 'Face Makeup', 500)">Face Makeup</div>
+                    <div class="service-option" onclick="addService('${clientId}', 'HD-Makeup', 2000)">HD Makeup</div>
+                   </div>
+
+                <div id="serviceList-${clientId}" class="service-list"></div>
+
+                <div class="discount-section">
+                    <label for="discount-${clientId}">Discount:</label>
+                    <input type="number" id="discount-${clientId}" value="0" oninput="updateClientDiscount('${clientId}', this.value)">
+                </div>
+
+                <div class="subtotal" id="subtotal-${clientId}">Subtotal: ₹0</div>
+                <div class="final-subtotal" id="finalSubtotal-${clientId}">Final Subtotal: ₹0</div>
+            `;
+
+            document.getElementById('tabContents').appendChild(tabContent);
+
+            clients[clientId] = {
+                services: [],
+                name: '',
+                total: 0,
+                discount: 0
+            };
+
+            openTab(clientId);
+        }
+
+        function openTab(clientId) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            const currentTabButton = document.querySelector(`[data-tab='${clientId}']`);
+            if (currentTabButton) {
+                currentTabButton.classList.add('active');
+            }
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${clientId}`).classList.add('active');
+            activeTab = clientId;
+            updateGrandTotal();
+        }
+
+        function updateTabName(clientId) {
+            const name = document.getElementById(`clientName-${clientId}`).value;
+            const btn = document.querySelector(`[data-tab='${clientId}']`);
+            if (btn) {
+                btn.textContent = name || `Client ${clientId}`;
+            }
+            clients[clientId].name = name;
+        }
+
+        function addService(clientId, desc, basePrice) {
+            const billDate = document.getElementById('billDate').value;
+            const serviceId = Math.random().toString(36).substring(7);
+            clients[clientId].services.push({ id: serviceId, desc: desc, price: basePrice, date: billDate });
+            updateClientServicesDisplay(clientId);
+            updateClientTotal(clientId);
+        }
+
+        function removeService(clientId, serviceId) {
+            clients[clientId].services = clients[clientId].services.filter(service => service.id !== serviceId);
+            updateClientServicesDisplay(clientId);
+            updateClientTotal(clientId);
+        }
+
+        function updateClientServicesDisplay(clientId) {
+            const serviceListDiv = document.getElementById(`serviceList-${clientId}`);
+            serviceListDiv.innerHTML = '';
+            clients[clientId].services.forEach((service, index) => {
+                const serviceItem = document.createElement('div');
+                serviceItem.className = 'service-item';
+                const serviceDateId = `serviceDate-${clientId}-${index}`;
+                const servicePriceId = `servicePrice-${clientId}-${index}`;
+                serviceItem.innerHTML = `
+                    <div class="service-item-details">
+                        <span>${service.desc}: ₹</span>
+                        <input type="number" id="${servicePriceId}" value="${service.price}" onchange="updateServicePrice('${clientId}', '${index}', this.value)">
+                        <input type="date" id="${serviceDateId}" value="${service.date}" onchange="updateServiceDate('${clientId}', '${index}', this.value)">
+                        <div>
+                            <button class="date-adjust-button" onclick="changeServiceDate('${clientId}', ${index}, -1)">➖</button>
+                            <button class="date-adjust-button" onclick="changeServiceDate('${clientId}', ${index}, 1)">➕</button>
+                            <button class="remove-service" onclick="removeService('${clientId}', '${service.id}')">×</button>
+                        </div>
+                    </div>
+                `;
+                serviceListDiv.appendChild(serviceItem);
+            });
+        }
+
+        function updateServiceDate(clientId, index, newDate) {
+            clients[clientId].services[index].date = newDate;
+        }
+
+        function updateServicePrice(clientId, index, newPrice) {
+            clients[clientId].services[index].price = parseFloat(newPrice);
+            updateClientTotal(clientId);
+        }
+
+        function updateClientDiscount(clientId, discountAmount) {
+            clients[clientId].discount = parseFloat(discountAmount);
+            updateClientTotal(clientId);
+        }
+
+        function changeServiceDate(clientId, index, offset) {
+            const service = clients[clientId].services[index];
+            const currentDate = new Date(service.date);
+            currentDate.setDate(currentDate.getDate() + offset);
+            clients[clientId].services[index].date = currentDate.toISOString().split('T')[0];
+            const serviceDateId = `serviceDate-${clientId}-${index}`;
+            const dateInput = document.getElementById(serviceDateId);
+            if (dateInput) {
+                dateInput.value = clients[clientId].services[index].date;
+            }
+        }
+
+        function updateClientTotal(clientId) {
+            const subtotalEl = document.getElementById(`subtotal-${clientId}`);
+            const finalSubtotalEl = document.getElementById(`finalSubtotal-${clientId}`);
+            const serviceTotal = clients[clientId].services.reduce((sum, s) => sum + s.price, 0);
+            clients[clientId].total = serviceTotal;
+            if (subtotalEl) {
+                subtotalEl.textContent = `Subtotal: ₹${serviceTotal}`;
+            }
+            const discountedTotal = serviceTotal - clients[clientId].discount;
+            if (finalSubtotalEl) {
+                finalSubtotalEl.textContent = `Final Subtotal: ₹${discountedTotal}`;
+            }
+            updateGrandTotal();
+        }
+
+        function updateGrandTotal() {
+            let totalBeforeGlobalFees = 0;
+            Object.values(clients).forEach(client => {
+                totalBeforeGlobalFees += client.total - client.discount;
+            });
+
+            const accommodation = parseFloat(document.getElementById("globalAccommodation").value || 0);
+            const convenience = parseFloat(document.getElementById("globalConvenience").value || 0);
+            const extra = parseFloat(document.getElementById("globalExtra").value || 0);
+
+            const total = totalBeforeGlobalFees + accommodation + convenience + extra;
+            document.getElementById('grandTotal').textContent = `Total Payable: ₹${total}`;
+        }
+
+        // Add first tab
+        addNewClient();
+    </script>
+<script>
+// Set today's date on load
+window.onload = () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("billDate").value = today;
+};
+
+// Add or subtract days for the main bill date
+function changeDate(offset) {
+    const dateInput = document.getElementById("billDate");
+    const current = new Date(dateInput.value);
+    current.setDate(current.getDate() + offset);
+    const newDate = current.toISOString().split('T')[0];
+    dateInput.value = newDate;
+    updateAllServiceDates(newDate);
+}
+
+function updateAllServiceDates(newDate) {
+    Object.keys(clients).forEach(clientId => {
+        clients[clientId].services.forEach(service => {
+            service.date = newDate;
+        });
+        updateClientServicesDisplay(clientId);
+    });
+}
+
+function startCodeFlow() {
+    document.getElementById('loadingModal').classList.add('active');
+
+    setTimeout(() => {
+        document.getElementById('loadingModal').classList.remove('active');
+        generateWhatsAppBill();
+    }, 2000);
+}
+
+function generateWhatsAppBill() {
+    let message = `Namasthe! 😊\nHere is a detailed bill for the services you availed from us:\n\n`;
+
+    let overallTotal = 0;
+    Object.keys(clients).forEach(clientId => {
+        const client = clients[clientId];
+        if (client.services.length === 0) return;
+
+        message += `👤 *${client.name || 'Client ' + clientId}*\n`;
+        let clientTotalBeforeDiscount = 0;
+        client.services.forEach(service => {
+            message += `• ${service.desc} (${service.date}): ₹${service.price}\n`;
+            clientTotalBeforeDiscount += service.price;
+        });
+        message += `Subtotal: ₹${clientTotalBeforeDiscount}\n`;
+        if (client.discount > 0) {
+            message += `Discount: ₹${client.discount}\n`;
+        }
+        const finalClientTotal = clientTotalBeforeDiscount - client.discount;
+        message += `Final Subtotal: ₹${finalClientTotal}\n\n`;
+        overallTotal += finalClientTotal;
+    });
+
+    const accommodation = parseFloat(document.getElementById("globalAccommodation").value || 0);
+    const convenience = parseFloat(document.getElementById("globalConvenience").value || 0);
+    const extra = parseFloat(document.getElementById("globalExtra").value || 0);
+
+    if (accommodation) {
+        message += `🏠 Accommodation Fee: ₹${accommodation}\n`;
+        overallTotal += accommodation;
+    }
+    if (convenience) {
+        message += `🛵 Convenience Fee: ₹${convenience}\n`;
+        overallTotal += convenience;
+    }
+    if (extra) {
+        message += `➕ Extra Charges: ₹${extra}\n`;
+        overallTotal += extra;
+    }
+    const selectedBillDate = document.getElementById("billDate").value;
+    message += `📅 *Bill Date:* ${selectedBillDate}\n\n`;
+
+    message += `\n💰 *Total Payable: ₹${overallTotal}*\n\n`;
+    message += `🙏 Thank you for choosing us!\nWe hope to serve you again.\n- *MadewithTaskly* 💚`;
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(message).then(() => {
+        alert("Bill copied to clipboard ✅");
+    });
+
+    // 📲 Replace with actual WhatsApp number (with country code, no + or spaces)
+    const phoneNumber = "XXXXXXXXXXXXX"; // e.g. 91 for India + 10-digit number
+
+    // Open WhatsApp chat with the message
+    const encoded = encodeURIComponent(message);
+    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encoded}`;
+    window.open(whatsappURL, '_blank');
+}
+</script>
+</body>
+</html>

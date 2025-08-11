@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TASKLY</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      text-transform: uppercase;
+    }
+    .container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .glass-white {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .profile-text {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .profile-text div:first-child {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .profile-text div:last-child {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+    .profile-pic {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+    }
+    .today-box {
+      background: rgba(0, 255, 0, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #00e676;
+      border-radius: 20px;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .calendar-box {
+      background: #fff;
+      color: #000;
+      border-radius: 20px;
+      padding: 20px;
+    }
+    .month-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .month-nav button {
+      background: none;
+      border: none;
+      color: #000;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    #current-month {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .days-container {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .day-bubble {
+      width: 36px;
+      height: 36px;
+      background-color: #eee;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .day-bubble:hover {
+      background-color: #000;
+      color: #fff;
+    }
+    .day-bubble.saved {
+      background-color: #00e676;
+      color: #000;
+    }
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #fff;
+      color: #000;
+      padding: 20px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+    }
+    .modal-content h3 {
+      margin-bottom: 15px;
+    }
+    .modal-content label {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+    .modal-content input,
+    .modal-content select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      font-size: 0.9rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .modal-content .btn {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #999;
+    }
+.day-bubble.today {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #00e676;
+}
+
+.phone-frame {
+  width: 390px;
+  height: 844px;
+  border: 16px solid #333;
+  border-radius: 40px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  background: #000;
+  position: relative;
+}
+
+.phone-frame::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 6px;
+  background: #555;
+  border-radius: 10px;
+}
+ .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #fff;
+      color: #000;
+      padding: 20px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .option-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .option {
+      padding: 10px 15px;
+      border-radius: 20px;
+      background: #eee;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .option.selected {
+      background: #00e676;
+      color: #000;
+    }
+    .modal-content input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      margin-top: 10px;
+      border-radius: 15px;
+      border: 1px solid #ccc;
+    }
+    .modal-content .btn {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      background: #000;
+      color: #00e676;
+      cursor: pointer;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .btn-delete { background: #ff5252; color: #fff; }
+    .btn-save { background: #007bff; color: #fff; }
+    .btn-book { background: #00e676; color: #000; }
+
+.nav-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 360px;
+  height: 70px;
+  background: #000;
+  border: 3px solid #000;
+  border-radius: 25px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  z-index: 999;
+}
+
+.nav-icon {
+  width: 28px;
+  height: 28px;
+  filter: invert(1);
+  opacity: 0.6;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-icon:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.nav-icon.active {
+  opacity: 1;
+  border: 2px solid #00ff88;
+  padding: 6px;
+  border-radius: 50%;
+  background: #000;
+  box-shadow: 0 0 10px #00ff88;
+}
+.glass-bill-btn {
+  padding: 14px 30px;
+  font-size: 1rem;
+  color: #0f0;
+  background: rgba(0, 255, 0, 0.1);
+  border: 2px solid #00e676;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-weight: bold;
+  box-shadow: 0 0 12px rgba(0, 255, 0, 0.4);
+  margin: 20px auto;
+  display: block;
+}
+
+.glass-bill-btn:hover {
+  background: rgba(0, 255, 0, 0.3);
+  color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+  transform: scale(1.05);
+}
+
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+    <div class="glass-white">
+      <div class="profile-text">
+        <div>HELLO USER</div>
+        <div>WELCOME</div>
+      </div>
+      <img class="profile-pic" src="https://imgs.search.brave.com/K-a0BAynlYwM0m_nW1mh7PghBRUsAXL0svUyvdld6lI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9hLnRo/dW1icy5yZWRkaXRt/ZWRpYS5jb20vbEtG/NEpUc3dhWTYySFcz/NC1EdVhtNXI4OXZr/X0pvc0JjSThDOVlN/MlVmNC5qcGc" alt="Profile Picture" />
+    </div>
+
+    <div class="today-box" id="today-box">01 | JAN 2025</div>
+
+    <div class="calendar-box">
+      <div class="month-nav">
+        <button id="prev-month">‹</button>
+        <span id="current-month">MONTH YEAR</span>
+        <button id="next-month">›</button>
+      </div>
+      <div class="days-container" id="days-container"></div>
+    </div>
+  </div>
+<br><br><hr>
+<div class="purple-section">
+  <button class="btn" onclick="openNotes()">📝 Notes</button>
+  <a href="bill.html"><button class="btn">💸 Bill</button></a>
+</div>
+
+<!-- Notes Modal -->
+<div id="notesModal" class="modal" onclick="handleOutsideClick(event)">
+  <div class="modal-content">
+    <textarea id="noteInput" placeholder="Write your notes here..."></textarea>
+    <div class="pill-buttons">
+      <button onclick="insertDate()">📅 Date</button>
+      <button onclick="closeNotes()">❌ Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tiny Saved Alert -->
+<div id="savedPopup">✅ Saved!</div>
+
+<style>
+.purple-section {
+  background: #6a0dad;
+  padding: 30px;
+  text-align: center;
+  border-radius: 0 0 20px 20px;
+}
+.purple-section .btn {
+  background: white;
+  color: #6a0dad;
+  border: none;
+  padding: 12px 24px;
+  margin: 10px;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.purple-section .btn:hover {
+  background: #e0ccff;
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 99;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  justify-content: center;
+  align-items: center;
+}
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+.modal-content textarea {
+  resize: none;
+  height: 150px;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+.pill-buttons {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.pill-buttons button {
+  flex: 1;
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  border-radius: 25px;
+  background-color: #6a0dad;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+.pill-buttons button:hover {
+  background-color: #8b2eff;
+}
+
+/* Saved popup */
+#savedPopup {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4caf50;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  display: none;
+  z-index: 999;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+</style>
+
+<script>
+function openNotes() {
+  const modal = document.getElementById('notesModal');
+  const textarea = document.getElementById('noteInput');
+  textarea.value = localStorage.getItem('myNotes') || '';
+  modal.style.display = 'flex';
+}
+
+function closeNotes() {
+  document.getElementById('notesModal').style.display = 'none';
+}
+
+function handleOutsideClick(event) {
+  const content = document.querySelector('.modal-content');
+  if (!content.contains(event.target)) closeNotes();
+}
+
+function insertDate() {
+  const textarea = document.getElementById('noteInput');
+  const current = new Date().toLocaleString();
+  textarea.value += `\n[${current}] `;
+  textarea.focus();
+  saveNote(true);
+}
+
+function saveNote(silent = false) {
+  const note = document.getElementById('noteInput').value;
+  localStorage.setItem('myNotes', note);
+  if (!silent) showSavedPopup();
+}
+
+function showSavedPopup() {
+  const popup = document.getElementById('savedPopup');
+  popup.style.display = 'block';
+  setTimeout(() => {
+    popup.style.display = 'none';
+  }, 1000);
+}
+
+// Auto-save while typing
+document.addEventListener("DOMContentLoaded", () => {
+  const textarea = document.getElementById('noteInput');
+  textarea.addEventListener('input', () => {
+    saveNote(true);
+  });
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Modal -->
+ <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <div id="step-content"></div>
+      <button class="btn" id="next-btn">NEXT</button>
+    </div>
+  </div>
+
+<script>
+  const today = new Date();
+  let currentMonth = today.getMonth();
+  let currentYear = today.getFullYear();
+
+  const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                      "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+  const daysContainer = document.getElementById("days-container");
+  const currentMonthSpan = document.getElementById("current-month");
+  const todayBox = document.getElementById("today-box");
+  const modal = document.getElementById("modal");
+  const stepContent = document.getElementById("step-content");
+  const nextBtn = document.getElementById("next-btn");
+
+const formState = {
+  name: '', payment: '', size: '', timezone: '', assisting: '', status: '',
+  assistant: '', advancePaid: '', advanceAmount: '', location: '', combine: 'No'
+};
+
+ const steps = [
+  {
+    question: "CLIENT TITLE:",
+    render: () => `<input type="text" id="step-input" placeholder="Enter name" value="${formState.name}" />`,
+    onNext: () => formState.name = document.getElementById("step-input").value.trim()
+  },
+  {
+    question: "EXPECTED PAYMENT SIZE",
+    render: () => renderOptions(["₹1–₹350", "₹350–₹500","₹500-₹1500","₹1500-₹2500","₹2500+","₹5000"], "payment"),
+    onNext: () => formState.payment = getSelectedOption("payment")
+  },
+  {
+    question: "CLIENT SIZE?",
+    render: () => renderOptions(["Small Group", "Medium Group", " Large Group", "SOLO"], "size"),
+    onNext: () => formState.size = getSelectedOption("size")
+  },
+  {
+    question: "TIME ZONE",
+    render: () => renderOptions(["MORNING", "AFTERNOON", "EVENING", "NIGHT"], "timezone"),
+    onNext: () => formState.timezone = getSelectedOption("timezone")
+  },
+   {
+    question: "COMBINE MULTIPLE DAYS?",
+    render: () => renderOptions(["No", "Next 2 Days", "Next 3 Days", "Previous 2 Days", "Previous 3 Days"], "combine"),
+    onNext: () => formState.combine = getSelectedOption("combine")
+  },
+  {
+    question: "ASSISTING/ASSISTANT TO SOMEONE?",
+    render: () => renderOptions(["YES", "NO", "NOT SURE"], "assisting"),
+    onNext: () => formState.assisting = getSelectedOption("assisting")
+  },
+  {
+    question: "APPOINTMENT TYPE?",
+    render: () => renderOptions(["CONFIRMED", "POSSIBLY", "NOT SURE"], "status"),
+    onNext: () => formState.status = getSelectedOption("status")
+  },
+  {
+    question: "ASSISTANT NAME?",
+    render: () => `
+      ${renderOptions(["None", "Ramesh", "Drithi","Suresh","Pakya","Rakhib", "Other"], "assistant")}
+      <input type="text" id="assistant-custom" placeholder="Enter name" style="margin-top:10px; display:none;" />
+    `,
+    onNext: () => {
+      const selected = getSelectedOption("assistant");
+      if (selected === "Other") {
+        const custom = document.getElementById("assistant-custom").value.trim();
+        formState.assistant = custom || "Other";
+      } else {
+        formState.assistant = selected;
+      }
+    }
+  },
+  {
+    question: "ADVANCE PAYMENT?",
+    render: () => `
+      ${renderOptions(["Yes", "No"], "advance")}
+      <input type="text" id="advance-amount" placeholder="Amount ₹" style="margin-top:10px; display:none;" />
+    `,
+    onNext: () => {
+      const selected = getSelectedOption("advance");
+      formState.advancePaid = selected;
+      if (selected === "Yes") {
+        formState.advanceAmount = document.getElementById("advance-amount").value.trim();
+      } else {
+        formState.advanceAmount = '';
+      }
+    }
+  },
+  {
+    question: "LOCATION?",
+    render: () => `<input type="text" id="step-input" placeholder="Enter location" value="${formState.location}" />`,
+    onNext: () => {
+      formState.location = document.getElementById("step-input").value.trim();
+      saveAppointment(tempKey, formState);
+      closeModal();
+      renderCalendar();
+    }
+  },
+  {
+    question: "COMBINE MULTIPLE DAYS?",
+    render: () => renderOptions(["No", "Next 2 Days", "Next 3 Days", "Previous 2 Days", "Previous 3 Days"], "combine"),
+    onNext: () => formState.combine = getSelectedOption("combine")
+  },
+];
+
+
+  let currentStep = 0;
+  let tempKey = '';
+
+  function renderCalendar() {
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const todayDate = today.getDate();
+    const isCurrentMonth = currentMonth === today.getMonth() && currentYear === today.getFullYear();
+
+    daysContainer.innerHTML = "";
+    currentMonthSpan.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement("div");
+      daysContainer.appendChild(empty);
+    }
+
+    for (let d = 1; d <= lastDate; d++) {
+      const day = document.createElement("div");
+      day.className = "day-bubble";
+      day.textContent = d;
+
+      const key = `${currentYear}-${currentMonth + 1}-${d}`;
+      if (localStorage.getItem(key)) {
+        day.classList.add("saved");
+      }
+
+      if (isCurrentMonth && d === todayDate) {
+        day.classList.add("today");
+      }
+
+      day.onclick = () => handleDayClick(key);
+      daysContainer.appendChild(day);
+    }
+
+    todayBox.textContent = `${String(todayDate).padStart(2, "0")} | ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+  }
+
+  renderCalendar();
+document.getElementById("prev-month").addEventListener("click", () => {
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  renderCalendar();
+});
+
+document.getElementById("next-month").addEventListener("click", () => {
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  renderCalendar();
+});
+
+
+  // ---------------- Handle Day Click -------------------
+
+  function handleDayClick(key) {
+  const existing = localStorage.getItem(key);
+  tempKey = key;
+
+  if (existing) {
+    const data = JSON.parse(existing);
+    modal.style.display = "flex";
+    stepContent.innerHTML = `
+      <h3>APPOINTMENT</h3>
+      <div><strong>Client:</strong> ${data.name}</div>
+      <div><strong>Payment:</strong> ${data.payment}</div>
+      <div><strong>Size:</strong> ${data.size}</div>
+      <div><strong>Time Zone:</strong> ${data.timezone}</div>
+      <div><strong>Assisting:</strong> ${data.assisting}</div>
+      <div><strong>Status:</strong> ${data.status}</div>
+      <div><strong>Assistant:</strong> ${data.assistant || '—'}</div>
+      <div><strong>Advance:</strong> ${data.advancePaid} ${data.advanceAmount ? '₹' + data.advanceAmount : ''}</div>
+       <div><strong>Location:</strong> ${data.location || '—'}</div>
+
+      <button class="btn btn-delete" onclick="deleteAppointment('${key}')">CANCEL</button>
+      <button class="btn btn-book" onclick="startNewBooking('${key}')">REPLACE</button>
+    `;
+    nextBtn.style.display = "none";
+  } else {
+    // Show 'no appointment' screen
+    modal.style.display = "flex";
+    stepContent.innerHTML = `
+      <h3>NO APPOINTMENT BOOKED</h3>
+      <p style="margin-bottom: 20px;">You have not booked any appointment on this date.</p>
+      <button class="btn btn-book" onclick="startNewBooking('${key}')">BOOK NOW</button>
+    `;
+    nextBtn.style.display = "none";
+  }
+}
+
+  function deleteAppointment(key) {
+    localStorage.removeItem(key);
+    closeModal();
+    renderCalendar();
+  }
+
+  function startNewBooking(key) {
+    nextBtn.style.display = "block";
+    openBookingFlow(key);
+  }
+
+  // ---------------- Modal Booking Flow -------------------
+
+  function renderOptions(options, groupName) {
+    return `
+      <div class="option-group" data-group="${groupName}">
+        ${options.map(option => `
+          <div class="option" onclick="selectOption(this)">${option}</div>
+        `).join('')}
+      </div>`;
+  }
+
+  function selectOption(el) {
+    const group = el.closest(".option-group");
+    group.querySelectorAll(".option").forEach(opt => opt.classList.remove("selected"));
+    el.classList.add("selected");
+  }
+
+  function getSelectedOption(group) {
+    const groupEl = document.querySelector(`.option-group[data-group="${group}"]`);
+    const selected = groupEl.querySelector(".option.selected");
+    return selected ? selected.textContent : '';
+  }
+  document.addEventListener("click", () => {
+  const assistantGroup = document.querySelector(`.option-group[data-group="assistant"]`);
+  if (assistantGroup) {
+    const otherSelected = assistantGroup.querySelector(".option.selected")?.textContent === "Other";
+    const input = document.getElementById("assistant-custom");
+    if (input) input.style.display = otherSelected ? "block" : "none";
+  }
+
+  const advanceGroup = document.querySelector(`.option-group[data-group="advance"]`);
+  if (advanceGroup) {
+    const yesSelected = advanceGroup.querySelector(".option.selected")?.textContent === "Yes";
+    const input = document.getElementById("advance-amount");
+    if (input) input.style.display = yesSelected ? "block" : "none";
+  }
+});
+
+  function showStep(index) {
+    const step = steps[index];
+    stepContent.style.opacity = 0;
+    nextBtn.style.display = "block";
+    setTimeout(() => {
+      stepContent.innerHTML = `<h3>${step.question}</h3>${step.render()}`;
+      stepContent.style.opacity = 1;
+    }, 200);
+  }
+
+  nextBtn.onclick = () => {
+    if (steps[currentStep].onNext) steps[currentStep].onNext();
+    currentStep++;
+    if (currentStep < steps.length) {
+      showStep(currentStep);
+    }
+  };
+
+  function openBookingFlow(key) {
+    modal.style.display = "flex";
+    tempKey = key;
+    currentStep = 0;
+    Object.keys(formState).forEach(k => formState[k] = '');
+    showStep(currentStep);
+  }
+
+ function saveAppointment(key, data) {
+  // Save locally
+  localStorage.setItem(key, JSON.stringify(data));
+
+  const [year, month, day] = key.split('-').map(Number);
+  const currentDate = new Date(year, month - 1, day); // Month is 0-indexed
+
+  if (data.combine === "Next 2 Days") {
+    for (let i = 1; i <= 2; i++) {
+      const nextDate = new Date(currentDate);
+      nextDate.setDate(currentDate.getDate() + i);
+      const nextKey = `${nextDate.getFullYear()}-${nextDate.getMonth() + 1}-${nextDate.getDate()}`;
+      localStorage.setItem(nextKey, JSON.stringify({...data, combine: 'Combined'})); // Mark as combined
+    }
+  } else if (data.combine === "Next 3 Days") {
+    for (let i = 1; i <= 3; i++) {
+      const nextDate = new Date(currentDate);
+      nextDate.setDate(currentDate.getDate() + i);
+      const nextKey = `${nextDate.getFullYear()}-${nextDate.getMonth() + 1}-${nextDate.getDate()}`;
+      localStorage.setItem(nextKey, JSON.stringify({...data, combine: 'Combined'})); // Mark as combined
+    }
+  } else if (data.combine === "Previous 2 Days") {
+    for (let i = 1; i <= 2; i++) {
+      const prevDate = new Date(currentDate);
+      prevDate.setDate(currentDate.getDate() - i);
+      const prevKey = `${prevDate.getFullYear()}-${prevDate.getMonth() + 1}-${prevDate.getDate()}`;
+      localStorage.setItem(prevKey, JSON.stringify({...data, combine: 'Combined'})); // Mark as combined
+    }
+  } else if (data.combine === "Previous 3 Days") {
+    for (let i = 1; i <= 3; i++) {
+      const prevDate = new Date(currentDate);
+      prevDate.setDate(currentDate.getDate() - i);
+      const prevKey = `${prevDate.getFullYear()}-${prevDate.getMonth() + 1}-${prevDate.getDate()}`;
+      localStorage.setItem(prevKey, JSON.stringify({...data, combine: 'Combined'})); // Mark as combined
+    }
+  }
+
+  // Sync to Firestore (Keep this part as it is)
+  const userId = "AKS"; // Or make dynamic later with login
+  if (window.saveToFirestore) {
+    window.saveToFirestore(userId, key, data);
+  }
+}
+
+
+  function closeModal() {
+    modal.style.display = "none";
+  }
+
+  window.openBookingFlow = openBookingFlow;
+
+</script>
+
+<script type="module">
+  import { saveToFirestore } from './backend.js';
+
+  // Make available globally
+  window.saveToFirestore = saveToFirestore;
+</script>
+
+<div class="nav-bar">
+  <a href="home.html">
+    <img src="https://cdn-icons-png.flaticon.com/128/6997/6997164.png" alt="Home" class="nav-icon active" />
+  </a>
+  <a href="calcu.html">
+    <img src="https://cdn-icons-png.flaticon.com/128/10550/10550106.png" alt="Cal" class="nav-icon" />
+  </a>
+  <a href="profile.html">
+    <img src="https://cdn-icons-png.flaticon.com/128/1077/1077114.png" alt="prof" class="nav-icon" />
+  </a>
+</div>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('SW registered:', reg))
+        .catch(err => console.error('SW registration failed:', err));
+    });
+  }
+</script>
+
+</body>
+</html>
