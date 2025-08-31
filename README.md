@@ -1,3 +1,4 @@
+*PROTOTYPE*
 Taskly is a lightweight, browser-based scheduling and billing tool built with HTML, CSS, and JavaScript, vibe-coded with the complete assistance from AI tools like Gemini and ChatGPT.
 
 Designed to simplify day-to-day operations for small businesses and freelancers, Taskly uses a guided question flow to capture essential client and appointment details — payment range, client size, preferred time slot, multiple-day bookings, assistant details,advance payment ( if yes, how much?) and location.
